@@ -1,0 +1,84 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    run: prod-user-%USER%
+  name: prod-user-%USER%
+spec:
+  ports:
+  - port: 80
+    targetPort: 8088
+    name: superset
+  - port: 8290
+    name: divolte
+  selector:
+    run: prod-user-%USER%
+  type: LoadBalancer
+  externalTrafficPolicy: Local
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    run: prod-user-%USER%
+  name: prod-user-%USER%
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: prod-user-%USER%
+  template:
+    metadata:
+      labels:
+        run: prod-user-%USER%
+    spec:
+      containers:
+      - image: tylerfowler/superset:0.13.2
+        imagePullPolicy: Always
+        name: prod-user-%USER%-superset
+        ports:
+        - containerPort: 8088
+        volumeMounts:
+          - name: prod-user-%USER%-superset
+            mountPath: /superset/
+        readinessProbe:
+          httpGet:
+            path: /login/
+            port: 8088
+          initialDelaySeconds: 5
+          timeoutSeconds: 1
+      - image: gcr.io/intentaware-1253/ia-divolte:0.6.0-0.2.2
+        imagePullPolicy: Always
+        name: prod-user-%USER%-divolte
+        ports:
+        - containerPort: 8290
+        env:
+        - name: DIVOLTE_KAFKA_BROKER_LIST
+          value : "prod-kafka-hs.default.svc.cluster.local:9093"
+        - name: DIVOLTE_KAFKA_CLIENT_ID
+          value : divolte-user-%USER%
+        - name: DIVOLTE_KAFKA_TOPIC
+          value : kafka-user-%USER%
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8290
+          initialDelaySeconds: 5
+          timeoutSeconds: 1
+      restartPolicy: Always
+      volumes:
+        - name: prod-user-%USER%-superset
+          persistentVolumeClaim:
+            claimName: prod-user-%USER%-superset
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: prod-user-%USER%-superset
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi

@@ -1,0 +1,145 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prod-dcoord-hs
+  labels:
+    app: prod-dcoord
+spec:
+  ports:
+  - port: 8081
+    name: coordinator
+  selector:
+    app: prod-dcoord
+  clusterIP: None
+---
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: prod-dcoord-pdb
+spec:
+  selector:
+    matchLabels:
+      app: prod-dcoord
+  maxUnavailable: 1
+---
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: prod-dcoord
+spec:
+  serviceName: prod-dcoord-hs
+  replicas: 2
+  podManagementPolicy: Parallel
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: prod-dcoord
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: "app"
+                    operator: In
+                    values:
+                    - prod-dcoord
+              topologyKey: "kubernetes.io/hostname"
+        podAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+             - weight: 1
+               podAffinityTerm:
+                 labelSelector:
+                    matchExpressions:
+                      - key: "app"
+                        operator: In
+                        values:
+                        - zk
+                 topologyKey: "kubernetes.io/hostname"
+      terminationGracePeriodSeconds: 300
+      containers:
+      - image: gcr.io/cloudsql-docker/gce-proxy:1.11
+        name: prod-cloudsql-proxy
+        command: ["/cloud_sql_proxy", "--dir=/cloudsql",
+                  "-instances=intentaware-1253:us-east1:ia-prod-meta=tcp:3306",
+                  "-credential_file=/secrets/cloudsql/credentials.json"]
+        volumeMounts:
+        - name: cloudsql-instance-credentials
+          mountPath: /secrets/cloudsql
+          readOnly: true
+        - name: ssl-certs
+          mountPath: /etc/ssl/certs
+        - name: cloudsql
+          mountPath: /cloudsql
+      - name: prod-dcoord
+        imagePullPolicy: Always
+        image: gcr.io/intentaware-1253/ia-druid-base:0.10.1-0.1
+        securityContext:
+          runAsUser: 1000
+        ports:
+        - containerPort: 8081
+          name: coordinator
+        command:
+        - sh
+        - -c
+        - "exec java \
+          -server \
+          -Xmx1g \
+          -Duser.timezone=UTC \
+          -Dfile.encoding=UTF-8 \
+          -Ddruid.zk.service.host=prod-zk-cs.default.svc.cluster.local:2181 \
+          -Ddruid.zk.paths.base=/druid/prod \
+          -Ddruid.discovery.curator.path=/prod/discovery \
+          -Ddruid.extensions.loadList=['\x22'mysql-metadata-storage'\x22','\x22'druid-kafka-indexing-service'\x22','\x22'druid-avro-extensions'\x22','\x22'druid-google-extensions'\x22'] \
+          -Ddruid.extensions.directory=/usr/local/druid/extensions \
+          -Ddruid.extensions.hadoopDependenciesDir=/usr/local/druid/hadoop-dependencies \
+          -Ddruid.metadata.storage.type=mysql \
+          -Ddruid.metadata.storage.connector.connectURI=jdbc:mysql://${DB_HOST}/druid \
+          -Ddruid.metadata.storage.connector.user=${DB_USER} \
+          -Ddruid.metadata.storage.connector.password=${DB_PASSWORD} \
+          -Ddruid.coordinator.asOverlord.enabled=true \
+          -Ddruid.coordinator.asOverlord.overlordService=druid/overlord \
+          -Ddruid.indexer.fork.property.druid.processing.numThreads=1 \
+          -Ddruid.indexer.storage.type=metadata \
+          -Ddruid.indexer.queue.startDelay=PT0M \
+          -Ddruid.indexer.runner.javaOpts=-server -Xmx1g -XX:MaxDirectMemorySize=2147483648 \
+          -Ddruid.indexer.logs.type=google \
+          -Ddruid.indexer.logs.bucket=ia-production-store \
+          -Ddruid.indexer.logs.prefix=druid/indexing-logs \
+          -Ddruid.google.bucket=ia-production-store \
+          -Ddruid.google.prefix=druid/segments \
+          -Ddruid.processing.buffer.sizeBytes=536870912 \
+          -Ddruid.coordinator.startDelay=PT5S \
+          -cp /usr/local/druid/lib/* \
+          io.druid.cli.Main server coordinator "
+        env:
+        - name: DB_HOST
+          value: 127.0.0.1:3306
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: cloudsql-db-credentials
+              key: username
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: cloudsql-db-credentials
+              key: password
+        readinessProbe:
+          exec:
+           command:
+            - sh
+            - -c
+            - "exec curl -X GET http://localhost:8081/status "
+      volumes:
+      - name: cloudsql-instance-credentials
+        secret:
+          secretName: cloudsql-instance-credentials
+      - name: ssl-certs
+        hostPath:
+          path: /etc/ssl/certs
+      - name: cloudsql
+        emptyDir:
