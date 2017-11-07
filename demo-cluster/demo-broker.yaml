@@ -1,0 +1,102 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-broker-hs
+  labels:
+    app: demo-broker
+spec:
+  ports:
+  - port: 8082
+    name: broker
+  selector:
+    app: demo-broker
+  clusterIP: None
+---
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: demo-broker-pdb
+spec:
+  selector:
+    matchLabels:
+      app: demo-broker
+  maxUnavailable: 1
+---
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: demo-broker
+spec:
+  serviceName: demo-broker-hs
+  replicas: 1
+  podManagementPolicy: Parallel
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: demo-broker
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: "app"
+                    operator: In
+                    values:
+                    - demo-broker
+              topologyKey: "kubernetes.io/hostname"
+        podAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+             - weight: 1
+               podAffinityTerm:
+                 labelSelector:
+                    matchExpressions:
+                      - key: "app"
+                        operator: In
+                        values:
+                        - zk
+                 topologyKey: "kubernetes.io/hostname"
+      terminationGracePeriodSeconds: 300
+      containers:
+      - name: demo-broker
+        imagePullPolicy: Always
+        image: gcr.io/intentaware-1253/ia-druid-base:0.10.1-0.33
+        securityContext:
+          runAsUser: 1000
+        ports:
+        - containerPort: 8082
+          name: coordinator
+        command:
+        - sh
+        - -c
+        - "exec java \
+          -server \
+          -Xmx1g \
+          -Duser.timezone=UTC \
+          -Dfile.encoding=UTF-8 \
+          -Djava.io.tmpdir=/tmp/druid \
+          -Ddruid.zk.service.host=demo-zk-cs.default.svc.cluster.local:2181 \
+          -Ddruid.zk.paths.base=/druid/demo \
+          -Ddruid.discovery.curator.path=/demo/discovery \
+          -Ddruid.extensions.loadList=['\x22'druid-google-extensions'\x22'] \
+          -Ddruid.extensions.directory=/usr/local/druid/extensions \
+          -Ddruid.extensions.hadoopDependenciesDir=/usr/local/druid/hadoop-dependencies \
+          -Ddruid.storage.type=google \
+          -Ddruid.indexer.logs.type=google \
+          -Ddruid.indexer.logs.bucket=ia-demo-store \
+          -Ddruid.indexer.logs.prefix=druid/indexing-logs \
+          -Ddruid.google.bucket=ia-demo-store \
+          -Ddruid.google.prefix=druid/segments \
+          -Ddruid.computation.buffer.size=67108864 \
+          -Ddruid.broker.cache.sizeInBytes=33554432 \
+          -cp /usr/local/druid/lib/* \
+          io.druid.cli.Main server broker "
+        readinessProbe:
+          exec:
+           command:
+            - sh
+            - -c
+            - "exec curl -X GET http://localhost:8082/status "

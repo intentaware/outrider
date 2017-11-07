@@ -1,0 +1,278 @@
+{
+	"type": "kafka",
+	"dataSchema": {
+		"dataSource": "divolte-user-100",
+		"parser": {
+			"type": "avro_stream",
+			"avroBytesDecoder": {
+				"type": "schema_inline",
+				"subjectAndIdConverter": {
+					"type": "avro_1124",
+					"topic": "kafka-user-100"
+				},
+				"schema": {
+					"namespace": "io.druid.data",
+					"name": "User",
+					"type": "record",
+					"fields": [{
+							"name": "detectedDuplicate",
+							"type": "boolean"
+						},
+						{
+							"name": "detectedCorruption",
+							"type": "boolean"
+						},
+						{
+							"name": "firstInSession",
+							"type": "boolean"
+						},
+						{
+							"name": "timestamp",
+							"type": "long"
+						},
+						{
+							"name": "remoteHost",
+							"type": "string"
+						},
+						{
+							"name": "referer",
+							"type": ["null", "string"],
+							"default": null
+						},
+						{
+							"name": "location",
+							"type": ["null", "string"],
+							"default": null
+						},
+						{
+							"name": "viewportPixelWidth",
+							"type": ["null", "int"],
+							"default": null
+						},
+						{
+							"name": "viewportPixelHeight",
+							"type": ["null", "int"],
+							"default": null
+						},
+						{
+							"name": "screenPixelWidth",
+							"type": ["null", "int"],
+							"default": null
+						},
+						{
+							"name": "screenPixelHeight",
+							"type": ["null", "int"],
+							"default": null
+						},
+						{
+							"name": "partyId",
+							"type": ["null", "string"],
+							"default": null
+						},
+						{
+							"name": "sessionId",
+							"type": ["null", "string"],
+							"default": null
+						},
+						{
+							"name": "pageViewId",
+							"type": ["null", "string"],
+							"default": null
+						},
+						{
+							"name": "eventType",
+							"type": "string",
+							"default": "unknown"
+						},
+						{
+							"name": "userAgentString",
+							"type": ["null", "string"],
+							"default": null
+						},
+						{
+							"name": "userAgentName",
+							"type": ["null", "string"],
+							"default": null
+						},
+						{
+							"name": "userAgentFamily",
+							"type": ["null", "string"],
+							"default": null
+						},
+						{
+							"name": "userAgentVendor",
+							"type": ["null", "string"],
+							"default": null
+						},
+						{
+							"name": "userAgentType",
+							"type": ["null", "string"],
+							"default": null
+						},
+						{
+							"name": "userAgentVersion",
+							"type": ["null", "string"],
+							"default": null
+						},
+						{
+							"name": "userAgentDeviceCategory",
+							"type": ["null", "string"],
+							"default": null
+						},
+						{
+							"name": "userAgentOsFamily",
+							"type": ["null", "string"],
+							"default": null
+						},
+						{
+							"name": "userAgentOsVersion",
+							"type": ["null", "string"],
+							"default": null
+						},
+						{
+							"name": "userAgentOsVendor",
+							"type": ["null", "string"],
+							"default": null
+						},
+						{
+							"name": "CityId",
+							"type": ["null","int"],
+							"default": null
+						},
+						{
+							"name": "CityName",
+							"type": ["null","string"],
+							"default": null
+						},
+						{
+							"name": "ContinentCode",
+							"type": ["null","string"],
+							"default": null
+						},
+						{
+							"name": "ContinentId",
+							"type": ["null","int"],
+							"default": null
+						},
+						{
+							"name": "ContinentName",
+							"type": ["null","string"],
+							"default": null
+						},
+						{
+							"name": "CountryCode",
+							"type": ["null","string"],
+							"default": null
+						},
+						{
+							"name": "CountryId",
+							"type": ["null","int"],
+							"default": null
+						},
+						{
+							"name": "CountryName",
+							"type": ["null","string"],
+							"default": null
+						},
+						{
+							"name": "Latitude",
+							"type": ["null","double"],
+							"default": null
+						},
+						{
+							"name": "Longitude",
+							"type": ["null","double"],
+							"default": null
+						},
+						{
+							"name": "MetroCode",
+							"type": ["null","int"],
+							"default": null
+						},
+						{
+							"name": "TimeZone",
+							"type": ["null","string"],
+							"default": null
+						},
+						{
+							"name": "PostalCode",
+							"type": ["null","string"],
+							"default": null
+						}
+					]
+				}
+			},
+			"parseSpec": {
+				"format": "timeAndDims",
+				"timestampSpec": {
+					"column": "timestamp",
+					"format": "auto"
+				},
+				"dimensionsSpec": {
+					"dimensions": [
+						"detectedDuplicate",
+						"detectedCorruption",
+						"firstInSession",
+						"remoteHost",
+						"referer",
+						"location",
+						"viewportPixelWidth",
+						"viewportPixelHeight",
+						"screenPixelWidth",
+						"screenPixelHeight",
+						"partyId",
+						"sessionId",
+						"pageViewId",
+						"eventType",
+						"userAgentString",
+						"userAgentName",
+						"userAgentFamily",
+						"userAgentVendor",
+						"userAgentType",
+						"userAgentVersion",
+						"userAgentDeviceCategory",
+						"userAgentOsFamily",
+						"userAgentOsVersion",
+						"userAgentOsVendor",
+						"CityId",
+						"CityName",
+						"ContinentCode",
+						"ContinentId",
+						"ContinentName",
+						"CountryCode",
+						"CountryId",
+						"CountryName",
+						"Latitude",
+						"Longitude",
+						"MetroCode",
+						"TimeZone",
+						"PostalCode"
+					]
+				}
+			}
+		},
+		"metricsSpec": [{
+			"name": "count",
+			"type": "count"
+		}],
+		"granularitySpec": {
+			"type": "uniform",
+			"segmentGranularity": "MINUTE",
+			"queryGranularity": "NONE",
+			"windowPeriod": "PT1M"
+		}
+	},
+	"tuningConfig": {
+		"type": "kafka",
+		"maxRowsPerSegment": 5000000
+	},
+	"ioConfig": {
+		"topic": "kafka-user-100",
+		"consumerProperties": {
+			"bootstrap.servers": "demo-kafka-hs.default.svc.cluster.local:9093"
+		},
+		"taskCount": 1,
+		"replicas": 1,
+		"taskDuration": "PT1M"
+	}
+}

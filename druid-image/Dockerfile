@@ -69,6 +69,19 @@ RUN java \
   --no-default-hadoop \
   -c "io.druid.extensions.contrib:druid-google-extensions:0.10.1"
 
+RUN mkdir -p /tmp/druid \
+  /tmp/druid/persistent/task \
+  /var/tmp \
+  /var/druid/indexing-logs \
+  /var/druid/segments \
+  /var/druid/segment-cache \
+  /var/druid/task \
+  /var/druid/hadoop-tmp \
+  /var/druid/pids
+
+RUN chown -R druid:druid /var/druid \
+      && chown -R druid:druid /tmp/druid
+
 # Expose ports:
 # - 8081: HTTP (coordinator)
 # - 8082: HTTP (broker)
@@ -78,6 +91,8 @@ EXPOSE 8081
 EXPOSE 8082
 EXPOSE 8083
 EXPOSE 8090
+EXPOSE 8091
+EXPOSE 8100 8101 8102 8103 8104
 
 WORKDIR /var/lib/druid
 

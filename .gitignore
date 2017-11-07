@@ -1,1 +1,3 @@
 druid-sql-client.json
+prod-cluster/prod-coordinator.yaml
+prod-user/*
