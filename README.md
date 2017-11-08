@@ -2,6 +2,7 @@
 ysf: outrider is a battleship in starwars and battleships carries x-wing fighters
 
 Nothing else matters !! till the sales happens - V (for vendetta)
+
 cost x cost x cost = 3xcost * 0 sales = 0. WE NEED THE DEMO READY.
 
 ## Setting up your Workstation
@@ -88,15 +89,22 @@ To setup the user dashboard, go to the loadbalancer IP provided by the script (o
 If you added a production cluster, the settings for druid cluster are:
 
 Coordinator Host: prod-coordinator-hs.default.svc.cluster.local
+
 Coordinator Port: 8081
+
 Broker Host: prod-broker-hs.default.svc.cluster.local
+
 Broker Port: 8082
 
 ### For Demo Cluster
 If you added a demo cluster, the settings for druid cluster are:
+
 Coordinator Host: demo-coordinator-hs.default.svc.cluster.local
+
 Coordinator Port: 8081
+
 Broker Host: demo-broker-hs.default.svc.cluster.local
+
 Broker Port: 8082
 
 Once you have added the druid cluster, keep refreshing the druid metadata until the data source is detected. In new clusters it will take a while to detect the data source.
