@@ -34,11 +34,14 @@ spec:
         run: demo-user-100
     spec:
       containers:
-      - image: tylerfowler/superset:0.20.1
+      - image: gcr.io/intentaware-1253/ia-superset:0.20.1-0.1.1
         imagePullPolicy: Always
         name: demo-user-100-superset
         ports:
         - containerPort: 8088
+        env:
+        - name: SUP_APP_NAME
+          value : 'IntentAware'
         volumeMounts:
           - name: demo-user-100-superset
             mountPath: /superset/
