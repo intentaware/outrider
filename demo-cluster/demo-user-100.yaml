@@ -34,7 +34,7 @@ spec:
         run: demo-user-100
     spec:
       containers:
-      - image: tylerfowler/superset:0.13.2
+      - image: tylerfowler/superset:0.20.1
         imagePullPolicy: Always
         name: demo-user-100-superset
         ports:
@@ -48,7 +48,7 @@ spec:
             port: 8088
           initialDelaySeconds: 5
           timeoutSeconds: 1
-      - image: gcr.io/intentaware-1253/ia-divolte:0.6.0-0.2.2
+      - image: gcr.io/intentaware-1253/ia-divolte:0.6.0-0.2.3
         imagePullPolicy: Always
         name: demo-user-100-divolte
         ports:

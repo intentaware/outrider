@@ -198,6 +198,21 @@
 							"name": "PostalCode",
 							"type": ["null","string"],
 							"default": null
+						},
+						{
+							"name": "MostSpecificSubdivisionCode",
+							"type": ["null","string"],
+							"default": null
+						},
+						{
+							"name": "MostSpecificSubdivisionId",
+							"type": ["null","int"],
+							"default": null
+						},
+						{
+							"name": "MostSpecificSubdivisionName",
+							"type": ["null","string"],
+							"default": null
 						}
 					]
 				}
@@ -246,7 +261,10 @@
 						"Longitude",
 						"MetroCode",
 						"TimeZone",
-						"PostalCode"
+						"PostalCode",
+						"MostSpecificSubdivisionCode",
+						"MostSpecificSubdivisionId",
+						"MostSpecificSubdivisionName"
 					]
 				}
 			}

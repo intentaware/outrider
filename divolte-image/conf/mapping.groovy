@@ -41,4 +41,7 @@ mapping {
     map geo.metroCode() onto 'MetroCode'
     map geo.timeZone() onto 'TimeZone'
     map geo.postalCode() onto 'PostalCode'
+    map geo.mostSpecificSubdivisionCode() onto 'MostSpecificSubdivisionCode'
+    map geo.mostSpecificSubdivisionId() onto 'MostSpecificSubdivisionId'
+    map geo.mostSpecificSubdivisionName() onto 'MostSpecificSubdivisionName'
 }

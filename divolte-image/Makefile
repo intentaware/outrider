@@ -1,4 +1,4 @@
-VERSION=0.6.0-0.2.2
+VERSION=0.6.0-0.2.3
 PROJECT_ID=intentaware-1253
 PROJECT=gcr.io/${PROJECT_ID}
 
