@@ -3,7 +3,7 @@ if [ $# -ne 2 ]; then
     echo "The required format is: sh add-demo-cluster.sh db_name the_password_you_want_to_set"
     exit 1
 fi
-gcloud container clusters create ia-demo --zone us-east1-d --scopes storage-rw --machine-type n1-standard-4 --num-nodes 1
+gcloud container clusters create ia-demo --zone us-east1-d --scopes storage-rw --machine-type n1-standard-4 --num-nodes 1 --preemptible
 gcloud sql instances create ia-demo-$1 --tier=db-f1-micro --region=us-east1
 gcloud sql users set-password root % --instance ia-demo-$1 --password $2
 gcloud sql users create proxyuser cloudsqlproxy~% --instance=ia-demo-$1 --password=$2
