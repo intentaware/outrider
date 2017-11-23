@@ -1,4 +1,4 @@
-# outrider
+# Outrider
 ysf: outrider is a battleship in starwars and battleships carries x-wing fighters
 
 Nothing else matters !! till the sales happens - V (for vendetta)
@@ -123,6 +123,19 @@ Each of the three docker image folders contain a Dockerfile and a Makefile. Whil
 
 ### Versioning
 The version of each docker image follows the convention: BASE_SOFTWARE_VERSION-OUR_INTERNAL_VERSION. For example, at the time of writing this documentation, we are using Divolte 0.6.0 and the version tag of our divolte image is 0.6.0-0.2.3.
+
+### Druid Container
+The Druid docker image provides a few enhancements to the other images available on the internet. This includes running the processes under a user, adding support for Google Cloud Storage and some fixes which make it suitable to run in the docker environment. The configurations for common runtimes and any of the Druid services is provided through the command line in the appropriate YAML file and is not baked into the container.
+
+### Kubernetes Specs
+Zookeeper, Kafka and Druid use StatefulSets so that identity of each pod is maintained and the chance of problems is minimised. Persistent disks are used wherever possible. Segment metadata and storage is not saved within the container engine and external services are used to further improve the reliability of the stack.
+
+Three Druid services are ran as independent services: coordinator (as an overlord as well), historical and broker. This means that middlemanagers are also working in the coordinator container. This is suitable for keeping the footprint of the stack short while ensuring production quality.
+
+The metadata database is accessed through Google's official proxy container to share the credentials. The cluster is started with rights to read and write in the cloud storage so that segments can be stored.
+
+## Security
+All services are addressed through the internal cluster DNS. Most of the services are headless and have no exposed end point outside of the cluster. The only entry point to the cluster is either through the user loadbalancers which point to service running divolte and superset; or through kubectl proxy. Both these methods are reasonably secure.
 
 ## Updating software
 The first step of upgrading software is to update the associated docker image, bump up the version number and execute a cloud build using `make` in the image folder. The next step is to update the associated Kubernetes YAML file to use the new version number and execute `kubectl apply -f path/to/file.yaml`. In most upgrades that is all you should need to do. If an upgrade requires any manual steps, that has to be planned seperately.
