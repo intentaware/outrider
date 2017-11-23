@@ -5,6 +5,8 @@ Nothing else matters !! till the sales happens - V (for vendetta)
 
 cost x cost x cost = 3xcost * 0 sales = 0. WE NEED THE DEMO READY.
 
+# Using this repository
+
 ## Setting up your Workstation
 You need to setup your computer to use this repository. This is a one time process for each computer where this repo needs to be used. The following guide assume that you are on OSX.
 
@@ -110,3 +112,22 @@ Broker Port: 8082
 Once you have added the druid cluster, keep refreshing the druid metadata until the data source is detected. In new clusters it will take a while to detect the data source.
 
 Now you can start querying data in the dashboard.
+
+# Technical details
+
+## Structure of the repository
+This repository contains three docker images and two cluster specifications. The docker images are in the folders druid-image, divolte-image and superset-image. The specifications for the demo are in the folder demo-cluster. The bash scripts in the repository root and the folders user-template and prod-cluster contain specifications for the production cluster.
+
+## Docker images
+Each of the three docker image folders contain a Dockerfile and a Makefile. While the Dockerfile contains the build steps, the Makefile contains the version numbers and code to execute the build in the Google container registry.
+
+### Versioning
+The version of each docker image follows the convention: BASE_SOFTWARE_VERSION-OUR_INTERNAL_VERSION. For example, at the time of writing this documentation, we are using Divolte 0.6.0 and the version tag of our divolte image is 0.6.0-0.2.3.
+
+## Updating software
+The first step of upgrading software is to update the associated docker image, bump up the version number and execute a cloud build using `make` in the image folder. The next step is to update the associated Kubernetes YAML file to use the new version number and execute `kubectl apply -f path/to/file.yaml`. In most upgrades that is all you should need to do. If an upgrade requires any manual steps, that has to be planned seperately.
+
+## Putting it all together
+Here is a little diagram which puts everything in perspective:
+
+![Outrider Architecture](docs/images/architecture.png)
