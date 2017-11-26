@@ -142,5 +142,5 @@ The first step of upgrading software is to update the associated docker image, b
 
 ## Putting it all together
 Here is a little diagram which puts everything in perspective:
-![High Level Architecture](docs/images/ia_architecture.pdf)
+
 ![Outrider Architecture](docs/images/architecture.png)
