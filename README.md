@@ -6,8 +6,8 @@ Nothing else matters !! till the sales happens - V (for vendetta)
 cost x cost x cost = 3xcost * 0 sales = 0. WE NEED THE DEMO READY.
 
 # Using this repository
-## Architecture
-
+## Business Architecture
+![Outrider Architecture](docs/images/ia_architecture.pdf.png)
 ## Setting up your Workstation
 You need to setup your computer to use this repository. This is a one time process for each computer where this repo needs to be used. The following guide assume that you are on OSX.
 
