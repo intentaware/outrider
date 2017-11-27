@@ -282,7 +282,8 @@
 	},
 	"tuningConfig": {
 		"type": "kafka",
-		"maxRowsPerSegment": 5000000
+		"maxRowsPerSegment": 5000000,
+		"resetOffsetAutomatically": true
 	},
 	"ioConfig": {
 		"topic": "kafka-user-100",
@@ -291,6 +292,7 @@
 		},
 		"taskCount": 1,
 		"replicas": 1,
-		"taskDuration": "PT1M"
+		"taskDuration": "PT1M",
+		"useEarliestOffset": true
 	}
 }
